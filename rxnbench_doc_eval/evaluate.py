@@ -9,31 +9,23 @@ from collections import defaultdict
 import os
 from pathlib import Path
 from openai import OpenAI
+from datasets import load_dataset
 
 # ================= settings =================
 # Model name for API calls and file naming
-MODEL_NAME = "gpt-4o" 
+MODEL_NAME = os.getenv("MODEL_NAME")
 # Get API Key from environment variable
 API_KEY = os.getenv("OPENAI_API_KEY") 
 # Get Base URL from environment variable (optional)
 BASE_URL = os.getenv("OPENAI_BASE_URL")
 # Output directory: defaults to './results/{MODEL_NAME}'
-OUTPUT_DIR = Path(os.getenv("OUTPUT_DIR", "./results")) / MODEL_NAME
+INFER_OUTPUT_DIR = Path(os.getenv("INFER_OUTPUT_DIR"))
 # Base path (retained from user structure, not directly used here)
-BASE_PATH = Path(__file__).resolve().parent.parent.parent.parent / "RxnBench/pdfqa" 
+BASE_PATH = Path(os.getenv("BASE_PATH"))
 # ===========================================
 
 # Ensure output directory exists
-OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
-
-# File path definitions
-RAW_ANSWERS_PATH = f"/path/to/eval/results/{MODEL_NAME}.json" 
-DATASET_PATH = "/path/to/dataset.en.jsonl"
-
-# Output file paths
-OUTPUT_JSONL = OUTPUT_DIR / f"{MODEL_NAME}_extracted.jsonl"
-ERROR_JSONL = OUTPUT_DIR / f"{MODEL_NAME}_error.jsonl"
-ACCURACY_JSON  = OUTPUT_DIR / f"{MODEL_NAME}_metrics.json"
+INFER_OUTPUT_DIR.mkdir(parents=True, exist_ok=True)
 
 # Initialize OpenAI client
 client = OpenAI(
@@ -196,28 +188,30 @@ def compute_accuracy(results):
     return stats_json
 
 
-def main():
+def main(language="en"):
     if not API_KEY:
         print("ERROR: OPENAI_API_KEY environment variable is not set or API_KEY is empty. Please check the configuration.")
         return
 
     print("Loading raw answers...")
+    raw_answers_path = INFER_OUTPUT_DIR / f"{MODEL_NAME}_{language}_doc.json"
     try:
-        with open(RAW_ANSWERS_PATH, 'r', encoding='utf-8') as f:
+        with open(raw_answers_path, 'r', encoding='utf-8') as f:
             raw_answers = json.load(f)
     except FileNotFoundError:
-        print(f"ERROR: Raw answers file not found at {RAW_ANSWERS_PATH}")
+        print(f"ERROR: Raw answers file not found at {raw_answers_path}")
         return
     except json.JSONDecodeError:
-        print(f"ERROR: Could not decode JSON from {RAW_ANSWERS_PATH}")
+        print(f"ERROR: Could not decode JSON from {raw_answers_path}")
         return
 
-    print("Loading dataset...")
+    print("Loading dataset from HuggingFace...")
     try:
-        with open(DATASET_PATH, 'r', encoding='utf-8') as f:
-            dataset = [json.loads(line) for line in f]
-    except FileNotFoundError:
-        print(f"ERROR: Dataset file not found at {DATASET_PATH}")
+        ds = load_dataset("UniParser/RxnBench-Doc", split=language)
+        dataset = list(ds)  # Convert to list for indexing
+        print(f"Loaded {len(dataset)} samples for {language}")
+    except Exception as e:
+        print(f"ERROR: Could not load dataset from HuggingFace: {e}")
         return
 
     assert len(raw_answers) == len(dataset), \
@@ -244,15 +238,17 @@ def main():
                 errors.append(err)
 
     # Write results
-    print(f"Writing results -> {OUTPUT_JSONL}")
-    with jsonlines.open(OUTPUT_JSONL, "w") as writer:
+    output_jsonl_path = INFER_OUTPUT_DIR / f"{MODEL_NAME}_{language}_doc_extracted.jsonl"
+    print(f"Writing results -> {output_jsonl_path}")
+    with jsonlines.open(output_jsonl_path, "w") as writer:
         for r in sorted(results, key=lambda x: x["index"]):
             writer.write(r)
 
     # Write error samples
+    error_jsonl_path = INFER_OUTPUT_DIR / f"{MODEL_NAME}_{language}_doc_error.jsonl"
     if errors:
-        print(f"Writing errors -> {ERROR_JSONL}")
-        with jsonlines.open(ERROR_JSONL, "w") as writer:
+        print(f"Writing errors -> {error_jsonl_path}")
+        with jsonlines.open(error_jsonl_path, "w") as writer:
             for e in errors:
                 writer.write(e)
     else:
@@ -266,12 +262,14 @@ def main():
     print("Computing accuracy...")
     acc_stats = compute_accuracy(results)
 
-    with open(ACCURACY_JSON, "w", encoding='utf-8') as f:
+    accuracy_json_path = INFER_OUTPUT_DIR / f"{MODEL_NAME}_{language}_doc_accuracy.json"
+    with open(accuracy_json_path, "w", encoding='utf-8') as f:
         json.dump(acc_stats, f, indent=2, ensure_ascii=False)
 
-    print(f"Accuracy saved -> {ACCURACY_JSON}")
+    print(f"Accuracy saved -> {accuracy_json_path}")
     print(f"Overall Accuracy: {acc_stats['overall']['accuracy']:.4f}")
     print("Done.")
 
 if __name__ == "__main__":
-    main()
+    main(language="en")
+    main(language="zh")
