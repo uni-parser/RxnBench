@@ -1,7 +1,7 @@
 # RxnBench: Benchmark for Chemical Reaction Figure Understanding
 
-[`UniParser/RxnBench`](https://huggingface.co/datasets/UniParser/RxnBench)
-[`UniParser/RxnBench-Doc`](https://huggingface.co/datasets/UniParser/RxnBench-Doc)
+[🤗`UniParser/RxnBench`](https://huggingface.co/datasets/UniParser/RxnBench)
+[🤗`UniParser/RxnBench-Doc`](https://huggingface.co/datasets/UniParser/RxnBench-Doc)
 
 ## 📘 Benchmark Summary
 
@@ -54,7 +54,7 @@ cd rxnbench_eval
 python example_inference.py
 
 # Run evaluation
-python evaluate.py --models "gpt-4o" --langs "en,zh"
+python evaluate.py
 ```
 
 **Note**: Due to legal considerations, the actual PDF files for the document evaluation are not provided in our dataset and must be collected and prepared by the user.
