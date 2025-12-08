@@ -1,20 +1,19 @@
 # RxnBench: Benchmark for Chemical Reaction Figure Understanding
 
-[🤗`UniParser/RxnBench`](https://huggingface.co/datasets/UniParser/RxnBench)
+[🤗`UniParser/RxnBench`](https://huggingface.co/datasets/UniParser/RxnBench) | 
 [🤗`UniParser/RxnBench-Doc`](https://huggingface.co/datasets/UniParser/RxnBench-Doc)
 
-## 📘 Benchmark Summary
+## Benchmark Summary
 
-RxnBench is a visual question answering (VQA) benchmark comprising 1,525 multiple-choice questions (MCQs) at the PhD-level of organic chemistry reaction understanding. 
+RxnBench is a PhD-level benchmark suite for organic-chemistry Image/PDF VQA, split into two parts:
 
-The benchmark is built from 305 scientific figures drawn from high-impact OpenAssess journals. 
-For each figure, domain experts carefully designed five multiple-choice VQA questions targeting the interpretation of organic reaction diagrams.
-These questions were further refined through multiple rounds of rigorous review and revision to ensure both clarity and scientific accuracy. 
-The questions cover a variety of types, including the description of chemical reaction images, extraction of reaction content, recognition of molecules or Markush structures, and determination of mechanisms.
-This benchmark challenges visual-language models on their foundational knowledge of organic chemistry, multimodal contextual reasoning, and chemical reasoning skills. 
+[RxnBench(SF-QA)](https://huggingface.co/datasets/UniParser/RxnBench): A benchmark for Chemical Reaction Figure Understanding, including 1,525 English/Chinese MCQs built on 305 peer-reviewed chemical reaction figures.
 
+[RxnBench(FD-QA)](https://huggingface.co/datasets/UniParser/RxnBench-Doc): A benchmark for Multimodal Understanding of Chemistry Reaction Literature, including 540 English/Chinese multiple-select questions on document-level chemical reaction understanding.
 
-The benchmark is released in both English and Chinese versions. 
+The benchmark is released in both English and Chinese versions.
+
+This repo provide a sample code to evaluate on this dataset.
 
 ## How to run
 
@@ -41,12 +40,12 @@ export INFER_OUTPUT_DIR="./results"            # output directory
 export BASE_PATH="/path/to/rxnbench/data"      # path to RxnBench data directory containing "pdf_files" and "images"(see below)
 ```
 
+
 ### Running Evaluations
 
+#### Benchmark 1: RxnBench (SF-QA)
 
-#### Benchmark 1: Regular Evaluation (Image-based VQA)
-
-- **VQA Evaluation**: [`UniParser/RxnBench`](https://huggingface.co/datasets/UniParser/RxnBench)
+**Signle Figure VQA Evaluation:** [`UniParser/RxnBench`](https://huggingface.co/datasets/UniParser/RxnBench)
 
 ```bash
 # Run inference for English and Chinese
@@ -57,11 +56,15 @@ python example_inference.py
 python evaluate.py
 ```
 
+#### Benchmark 2: RxnBench (FD-QA)
+
+**Full Document VQA Evaluation:** [`UniParser/RxnBench-Doc`](https://huggingface.co/datasets/UniParser/RxnBench-Doc)
+
+**Step1: PDF file preparation**
+
 **Note**: Due to legal considerations, the actual PDF files for the document evaluation are not provided in our dataset and must be collected and prepared by the user.
 
-#### PDF File Preparation for Document Evaluation
-
-To run the document evaluation benchmark, you need to prepare the corresponding PDF files for each paper referenced in the dataset. Here's how to do it:
+To run the document evaluation benchmark, you need to prepare the corresponding PDF files for each paper referenced in the dataset:
 
 1. **Identify Required PDFs**: The dataset contains a `pdf_doi` field for each question, which contains the DOI (Digital Object Identifier) of the paper.
 
@@ -84,9 +87,7 @@ To run the document evaluation benchmark, you need to prepare the corresponding 
 **Important Notes**:
 - Ensure you have proper access rights to download and use the PDFs
 
-#### Benchmark 2: Document Evaluation (Document VQA)
-
-- **Document QA Evaluation**: [`UniParser/RxnBench-Doc`](https://huggingface.co/datasets/UniParser/RxnBench-Doc)
+**Step2: Run evaluation**
 
 ```bash
 # Run inference
@@ -103,62 +104,6 @@ python evaluate.py
 - `{MODEL_NAME}_{lang}_extracted.jsonl`: Processed predictions with accuracy
 - `{MODEL_NAME}_{lang}_accuracy.json`: Accuracy statistics by question type
 - `{MODEL_NAME}_{lang}_error.jsonl`: Failed predictions and errors
-
-## 📑 Task Types
-
-We categorize chemical reaction visual question answering tasks into six types:
-
-- **Type 0 — Fact Extraction**: Direct retrieval of textual or numerical information from reaction schemes.
-- **Type 1 — Reagent Roles and Functions Identification**: Identification of reagents and their functional roles, requiring chemical knowledge and reaction-type awareness.
-- **Type 2 — Reaction Mechanism and Process Understanding**: Interpretation of reaction progression, including intermediates, catalytic cycles, and mechanistic steps.
-- **Type 3 — Comparative Analysis and Reasoning**: Comparative evaluation, causal explanation, or outcome prediction under varying conditions.
-- **Type 4 — Multi-step Synthesis and Global Understanding**: Comprehension of multi-step pathways, step-to-step coherence, and overall synthetic design.
-- **Type 5 — Chemical Structure Recognition**: Extraction and reasoning-based parsing of chemical structures in SMILES or E-SMILES (as defined in the [MolParser](https://arxiv.org/abs/2411.11098) paper).
-
-![output3](https://cdn-uploads.huggingface.co/production/uploads/65f7f16fb6941db5c2e7c4bf/oTOMcZE7oz-Pv4fUUpi0J.png)
-
-
-## 🎯 Benchmark Evaluation
-
-This benchmark evaluates model performance on multiple-choice question answering (MCQ) tasks.
-
-We provide two versions of the prompt template, depending on the language setting.
-
-**English Prompt**
-
-```
-Question: {question}
-Choices:
-A. {choice_A}
-B. {choice_B}
-C. {choice_C}
-D. {choice_D}
-Based on the image and the question, choose the most appropriate answer.
-**Only output a single letter (A, B, C, or D)**. Do NOT output any other text or explanation.
-```
-
-**Chinese Prompt**
-
-```
-问题: {question}
-选项:
-A. {choice_A}
-B. {choice_B}
-C. {choice_C}
-D. {choice_D}
-
-请根据图像和问题，从以上四个选项中选择最合适的答案。
-只输出单个字母 (A, B, C 或 D)，不要输出选项内容，也不要输出任何解释。
-```
-
-**Evaluation Protocol**
-
-If the model’s output is not one of A, B, C, or D, we use GPT-4o to map the output to A–D based on the option content. 
-The final evaluation reports the absolute accuracy of the benchmark in both English and Chinese versions.
-
-## 🤝 Contributing
-
-We welcome contributions! Please see our contributing guidelines and code of conduct.
 
 ## 📄 License
 
