@@ -45,7 +45,7 @@ export BASE_PATH="/path/to/rxnbench/data"      # path to RxnBench data directory
 
 #### Benchmark 1: RxnBench (SF-QA)
 
-**Signle Figure VQA Evaluation:** [`UniParser/RxnBench`](https://huggingface.co/datasets/UniParser/RxnBench)
+**Single Figure VQA Evaluation:** [`UniParser/RxnBench`](https://huggingface.co/datasets/UniParser/RxnBench)
 
 ```bash
 # Run inference for English and Chinese
