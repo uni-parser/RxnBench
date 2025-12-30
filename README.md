@@ -1,7 +1,8 @@
 # RxnBench: Benchmark for Chemical Reaction Figure/Document Understanding
 
 [🤗`UniParser/RxnBench`](https://huggingface.co/datasets/UniParser/RxnBench) | 
-[🤗`UniParser/RxnBench-Doc`](https://huggingface.co/datasets/UniParser/RxnBench-Doc)
+[🤗`UniParser/RxnBench-Doc`](https://huggingface.co/datasets/UniParser/RxnBench-Doc) |
+[📚`arxiv`](https://arxiv.org/abs/2512.23565)
 
 ## Benchmark Summary
 
