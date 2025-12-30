@@ -112,14 +112,11 @@ See the LICENSE file for details.
 
 ## 📖 Citation
 
-Our paper is coming soon. Please cite this repository for now:
-
 ```bibtex
-@misc{rxnbench2025,
-  title={RxnBench: A Benchmark for Chemical Reaction Figure Understanding},
-  author={UniParser Team},
-  year={2025},
-  publisher={GitHub},
-  url={https://github.com/uni-parser/RxnBench}
+@article{li2025rxnbench,
+  title={RxnBench: A Multimodal Benchmark for Evaluating Large Language Models on Chemical Reaction Understanding from Scientific Literature},
+  author={Li, Hanzheng and Fang, Xi and Li, Yixuan and Huang, Chaozheng and Wang, Junjie and Wang, Xi and Bai, Hongzhe and Hao, Bojun and Lin, Shenyu and Liang, Huiqi and Zhang, Linfeng and Ke, Guolin},
+  journal={arXiv preprint arXiv:2512.23565},
+  year={2025}
 }
 ```
